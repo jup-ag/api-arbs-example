@@ -7,6 +7,7 @@ This code shows:
 - It will send a minimum 2 transactions and it may fail but it's fine since transaction fee is cheap on Solana.
 
 ![example](/images/example.png)
+
 It shows that it earns 1 cent from the screenshot above:
 - First tx: use 20 USDC to get 0.21213753 SOL
 - Second tx: use 0.21213755 SOL to get 20.01 USDC
