@@ -19,7 +19,9 @@ import {
 console.log({ dotenv });
 dotenv.config();
 
-const connection = new Connection("https://mercurial.rpcpool.com");
+// This is a free Solana RPC endpoint. It may have ratelimit and sometimes
+// invalid cache. I will recommend using a paid RPC endpoint.
+const connection = new Connection("https://solana-api.projectserum.com");
 const wallet = new Wallet(
   Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY || ""))
 );
