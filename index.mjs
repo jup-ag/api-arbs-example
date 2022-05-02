@@ -73,7 +73,7 @@ const createWSolAccount = async () => {
 
     transaction.add(...instructions);
     transaction.recentBlockhash = await (
-      await connection.getRecentBlockhash()
+      await connection.getLatestBlockhash()
     ).blockhash;
     transaction.partialSign(wallet.payer);
     const result = await connection.sendTransaction(transaction, [
