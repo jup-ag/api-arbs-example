@@ -17,7 +17,7 @@ It earns less than 1 cent because it uses 0.00000002 SOL but that is insignifica
 ## How to use?
 1. Install dependencies
 ```sh
-pnpm install
+npm install
 ```
 
 2.  Just create a `.env` file with your PRIVATE_KEY
