@@ -88,7 +88,7 @@ const createWSolAccount = async () => {
 const getCoinQuote = (inputMint, outputMint, amount) =>
   got
     .get(
-      `https://quote-api.jup.ag/v1/quote?outputMint=${outputMint}&inputMint=${inputMint}&amount=${amount}&slippage=0.2`
+      `https://quote-api.jup.ag/v1/quote?outputMint=${outputMint}&inputMint=${inputMint}&amount=${amount}&slippage=0.01`
     )
     .json();
 
@@ -137,25 +137,29 @@ const getConfirmTransaction = async (txid) => {
 await createWSolAccount();
 
 // initial 20 USDC for quote
-const initial = 20_000_000;
-
+const initial = 200_000_000;
+const initialDecimal = 200;
+var totalProfit = 0;
+var iterationsTotal = 0;
+var successfulAttempts = 0;
+var failedAttempts = 0;
+var transactionProfit = 0;
+var transactionsAttempted = 0;
 while (true) {
   // 0.1 SOL
+  iterationsTotal++;
+  transactionProfit = 0;
   const usdcToSol = await getCoinQuote(USDC_MINT, SOL_MINT, initial);
-
-  const solToUsdc = await getCoinQuote(
-    SOL_MINT,
-    USDC_MINT,
-    usdcToSol.data[0].outAmount
-  );
-
+  const solToUsdc = await getCoinQuote( SOL_MINT,  USDC_MINT, usdcToSol.data[0].outAmount);
+  const outAmount = solToUsdc.data[0].outAmount;
+  console.log( `_LOG_: USDC_TO_SOL ->  ${usdcToSol.data[0].outAmount} | SOL_TO_USDC ->  ${outAmount} | SOL_USDC_W_SLIPPAGE -> ${solToUsdc.data[0].outAmountWithSlippage}`);
   // when outAmount more than initial
-  if (solToUsdc.data[0].outAmount > initial) {
-    await Promise.all(
+  if (outAmount > initial) {
+      transactionsAttempted++;
+      await Promise.all(
       [usdcToSol.data[0], solToUsdc.data[0]].map(async (route) => {
         const { setupTransaction, swapTransaction, cleanupTransaction } =
           await getTransaction(route);
-
         await Promise.all(
           [setupTransaction, swapTransaction, cleanupTransaction]
             .filter(Boolean)
@@ -166,7 +170,7 @@ while (true) {
               );
               // perform the swap
               // Transaction might failed or dropped
-              const txid = await connection.sendTransaction(
+                const txid = await connection.sendTransaction(
                 transaction,
                 [wallet.payer],
                 {
@@ -175,13 +179,19 @@ while (true) {
               );
               try {
                 await getConfirmTransaction(txid);
-                console.log(`Success: https://solscan.io/tx/${txid}`);
+                  console.log(`Success: https://solscan.io/tx/${txid}`);
+                  successfulAttempts++;
               } catch (e) {
                 console.log(`Failed: https://solscan.io/tx/${txid}`);
+                failedAttempts++;
               }
-            })
+             })
         );
       })
     );
+      transactionProfit = (solToUsdc.data[0].outAmount / 1000000) - initialDecimal;
+      totalProfit += transactionProfit;
   }
+    console.log(`Iteration #: ${iterationsTotal} | Transactions attempted ${transactionsAttempted} | Successful transactions: ${successfulAttempts} | Failed transactions: ${failedAttempts} | Attempted profit: ${transactionProfit} | Total attempted profit: ${totalProfit}`);
+    console.log("------------------------------------------------------------------------------------------------------------------");
 }
