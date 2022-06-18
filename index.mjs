@@ -139,12 +139,14 @@ await createWSolAccount();
 // initial 20 USDC for quote
 const initial = 200_000_000;
 const initialDecimal = 200;
+const solTransactionFee = 0.000005;
 var totalProfit = 0;
 var iterationsTotal = 0;
 var successfulAttempts = 0;
 var failedAttempts = 0;
 var transactionProfit = 0;
 var transactionsAttempted = 0;
+var solSpentOnTransactions = 0;
 while (true) {
   // 0.1 SOL
   iterationsTotal++;
@@ -170,7 +172,7 @@ while (true) {
               );
               // perform the swap
               // Transaction might failed or dropped
-                const txid = await connection.sendTransaction(
+              const txid = await connection.sendTransaction(
                 transaction,
                 [wallet.payer],
                 {
@@ -181,17 +183,24 @@ while (true) {
                 await getConfirmTransaction(txid);
                   console.log(`Success: https://solscan.io/tx/${txid}`);
                   successfulAttempts++;
+                  solSpentOnTransactions+=solTransactionFee;
               } catch (e) {
                 console.log(`Failed: https://solscan.io/tx/${txid}`);
                 failedAttempts++;
+                solSpentOnTransactions+=solTransactionFee;
               }
-             })
+            })
         );
       })
     );
       transactionProfit = (solToUsdc.data[0].outAmount / 1000000) - initialDecimal;
       totalProfit += transactionProfit;
   }
-    console.log(`Iteration #: ${iterationsTotal} | Transactions attempted ${transactionsAttempted} | Successful transactions: ${successfulAttempts} | Failed transactions: ${failedAttempts} | Attempted profit: ${transactionProfit} | Total attempted profit: ${totalProfit}`);
-    console.log("------------------------------------------------------------------------------------------------------------------");
+    console.log(
+      `Iteration #: ${iterationsTotal} | Transactions attempted ${transactionsAttempted} | Successful transactions: ${successfulAttempts} 
+      | Failed transactions: ${failedAttempts} | Attempted profit: ${transactionProfit} | Total attempted profit: ${totalProfit} | 
+      Fees: ${solSpentOnTransactions} sol`
+    );
+    console.log("---------------------------------------------------------------------------------------------------------------------------------------------------------");
 }
+
