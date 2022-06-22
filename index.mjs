@@ -19,9 +19,12 @@ import {
 console.log({ dotenv });
 dotenv.config();
 
-// This is a free Solana RPC endpoint. It may have ratelimit and sometimes
-// invalid cache. I will recommend using a paid RPC endpoint.
-const connection = new Connection("https://solana-api.projectserum.com");
+const getRpcEndPoint = () => {
+    // If RPC_END_POINT is not defined it will default to a free Solana RPC endpoint.
+    // It may have ratelimit and sometimes invalid cache. It is recommended to use a  paid RPC endpoint.
+    return process.env?.RPC_END_POINT || "https://solana-api.projectserum.com";
+}
+const connection = new Connection(getRpcEndPoint());
 const wallet = new Wallet(
   Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY || ""))
 );
