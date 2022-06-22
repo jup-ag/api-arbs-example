@@ -151,13 +151,13 @@ var transactionProfit = 0;
 var transactionsAttempted = 0;
 var solSpentOnTransactions = 0;
 while (true) {
-  // 0.1 SOL
   iterationsTotal++;
   transactionProfit = 0;
+  // 0.1 SOL
+  console.log(`Iteration #: ${iterationsTotal} | Checking quotes using ${initial} usdc as input amount...`);
   const usdcToSol = await getCoinQuote(USDC_MINT, SOL_MINT, initial);
   const solToUsdc = await getCoinQuote( SOL_MINT,  USDC_MINT, usdcToSol.data[0].outAmount);
   const outAmount = solToUsdc.data[0].outAmount;
-  console.log( `_LOG_: USDC_TO_SOL ->  ${usdcToSol.data[0].outAmount} | SOL_TO_USDC ->  ${outAmount} | SOL_USDC_W_SLIPPAGE -> ${solToUsdc.data[0].outAmountWithSlippage}`);
   // when outAmount more than initial
   if (outAmount > initial) {
       transactionsAttempted++;
@@ -199,11 +199,9 @@ while (true) {
       transactionProfit = (solToUsdc.data[0].outAmount / 1000000) - initialDecimal;
       totalProfit += transactionProfit;
   }
+    console.log( `-Quote information: USDC_TO_SOL ->  ${usdcToSol.data[0].outAmount} | SOL_TO_USDC ->  ${outAmount} | SOL_USDC_W_SLIPPAGE -> ${solToUsdc.data[0].outAmountWithSlippage} | OUT_AMOUNT > INITIAL: ${outAmount > initial} `);
     console.log(
-      `Iteration #: ${iterationsTotal} | Transactions attempted ${transactionsAttempted} | Successful transactions: ${successfulAttempts} 
-      | Failed transactions: ${failedAttempts} | Attempted profit: ${transactionProfit} | Total attempted profit: ${totalProfit} | 
-      Fees: ${solSpentOnTransactions} sol`
-    );
-    console.log("---------------------------------------------------------------------------------------------------------------------------------------------------------");
+      `-Transaction information ${transactionsAttempted} | Successful : ${successfulAttempts} | Failed : ${failedAttempts} `);
+    console.log( `-Profit information: Attempted profit: ${transactionProfit} | Total attempted profit: ${totalProfit} | Fees: ${solSpentOnTransactions} sol`);
+    console.log("--------------------------------------------------------------------------------------");
 }
-
